@@ -54,12 +54,14 @@ var listDeviceAppsCmd = &cobra.Command{
 	Long: "list-device-apps",
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		devices, err := client.GetDeviceApps(args[0])
+		apps, err := client.GetDeviceApps(args[0])
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println(devices)
+		for _, app := range apps {
+			fmt.Println(app)
+		}
 	},
 }
 
