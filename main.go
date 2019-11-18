@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -10,48 +11,39 @@ import (
 
 var (
 	server string
-	username string
-	password string
 	client *gba.GbaClient
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "foo",
-	Short: "Foo",
-	Long:  "Foo",
+	Use:   "gba-cli",
+	Short: "gba-cli",
+	Long:  "gba-cli",
 	PersistentPreRun: func(cmd *cobra.Command, args[]string) {
-		config := &gba.Config{BaseUrl: server, Username: username, Password: password}
+		config := &gba.Config{BaseUrl: server}
 		client = gba.New(config)
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Foo")
-		devices, err := client.ListDevices()
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println(devices)
 	},
 }
 
 var listDevicesCmd = &cobra.Command{
-	Use: "list-devices",
-	Short: "list-devices",
-	Long: "list-devices",
+	Use: "list",
+	Short: "List devices",
+	Long: "List devices",
 	Run: func(cmd *cobra.Command, args []string) {
 		devices, err := client.ListDevices()
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println(devices)
+		for _, device := range devices {
+			fmt.Printf("%s\t%s\n", device.Id, device.Name)
+		}
 	},
 }
 
 var listDeviceAppsCmd = &cobra.Command{
-	Use: "list-device-apps [DEVICE ID]",
-	Short: "list-device-apps",
-	Long: "list-device-apps",
+	Use: "list-apps [DEVICE ID]",
+	Short: "List apps",
+	Long: "List apps",
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		apps, err := client.GetDeviceApps(args[0])
@@ -60,58 +52,84 @@ var listDeviceAppsCmd = &cobra.Command{
 		}
 
 		for _, app := range apps {
-			fmt.Println(app)
+			fmt.Printf("%s\n", app.Identifier)
 		}
 	},
 }
 
 var getDeviceCmd = &cobra.Command{
-	Use: "get-device [DEVICE ID]",
-	Short: "get-device",
-	Long: "get-device",
+	Use: "describe [DEVICE ID]",
+	Short: "Describe device",
+	Long: "Describe device",
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		devices, err := client.GetDevice(args[0])
+		device, err := client.GetDevice(args[0])
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println(devices)
+		fmt.Printf("%s\t%s\n", device.Id, device.Name)
 	},
 }
 
 var startSessionCmd = &cobra.Command{
-	Use: "start-session [DEVICE ID] [APP ID]",
-	Short: "start-session",
-	Long: "start-session",
+	Use: "start [DEVICE ID] [APP ID]",
+	Short: "Start recording a session",
+	Long: "Start recording a session",
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		devices, err := client.StartSession(args[0], args[1], nil)
+		screenshots, _ := cmd.Flags().GetBool("screenshots")
+		autoSync, _ := cmd.Flags().GetBool("auto-sync")
+		options := &gba.StartSessionOptions{Screenshots: screenshots, AutoSync: autoSync}
+		session, err := client.StartSession(args[0], args[1], options)
 		if err != nil {
 			panic(err)
 		}
 
-		fmt.Println(devices)
+		fmt.Printf("%s\n", session.Id)
 	},
 }
 
 var stopSessionCmd = &cobra.Command{
-	Use: "stop-session [SESSION ID]",
-	Short: "stop-session",
-	Long: "stop-session",
-	Args: cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		err := client.StopSession(args[0])
+	Use: "stop [SESSION ID]",
+	Short: "Stop a session",
+	Long: "stop",
+	Args: cobra.OnlyValidArgs,
+	RunE: func(cmd *cobra.Command, args []string) error {
+		all, err := cmd.Flags().GetBool("all")
+		if all {
+			sessions, err := client.ListSessions()
+			if err != nil {
+				panic(err)
+			}
+
+			for _, session := range sessions {
+				err = client.StopSession(session.Id)
+				if err != nil {
+					panic(err)
+				}
+			}
+
+			return nil
+		}
+
+		if len(args) < 1 {
+			return errors.New("requires a SESSION ID argument")
+		}
+
+		err = client.StopSession(args[0])
 		if err != nil {
 			panic(err)
 		}
+
+		return nil
 	},
 }
 
 var syncSessionsCmd = &cobra.Command{
-	Use: "sync-sessions",
-	Short: "sync-sessions",
-	Long: "sync-sessions",
+	Use: "sync",
+	Short: "Sync all sessions",
+	Long: "Sync all sessions",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := client.Sync()
 		if err != nil {
@@ -120,10 +138,26 @@ var syncSessionsCmd = &cobra.Command{
 	},
 }
 
+var listSessionsCmd = &cobra.Command{
+	Use: "list",
+	Short: "List sessions",
+	Long: "List sessions",
+	Run: func(cmd *cobra.Command, args []string) {
+		sessions, err := client.ListSessions()
+		if err != nil {
+			panic(err)
+		}
+
+		for _, session := range sessions {
+			fmt.Printf("%s\n", session.Id)
+		}
+	},
+}
+
 var getPropertiesCmd = &cobra.Command{
-	Use: "get-properties",
-	Short: "get-properties",
-	Long: "get-properties",
+	Use: "list",
+	Short: "List config properties",
+	Long: "List config properties",
 	Run: func(cmd *cobra.Command, args []string) {
 		properties, err := client.GetProperties()
 		if err != nil {
@@ -138,9 +172,9 @@ var getPropertiesCmd = &cobra.Command{
 }
 
 var setPropertyCmd = &cobra.Command{
-	Use: "set-property",
-	Short: "set-property",
-	Long: "set-property",
+	Use: "set",
+	Short: "Set a config property",
+	Long: "Set a config property",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := client.SetProperty(args[0], args[1])
 		if err != nil {
@@ -149,19 +183,44 @@ var setPropertyCmd = &cobra.Command{
 	},
 }
 
+var sessionCmd = &cobra.Command{
+	Use: "session",
+	Short: "session",
+	Long: "session",
+}
+
+var deviceCmd = &cobra.Command{
+	Use: "device",
+	Short: "device",
+	Long: "device",
+}
+
+var propertyCmd = &cobra.Command{
+	Use: "property",
+	Short: "property",
+	Long: "property",
+}
+
 func main() {
-	rootCmd.AddCommand(listDevicesCmd)
-	rootCmd.AddCommand(listDeviceAppsCmd)
-	rootCmd.AddCommand(getDeviceCmd)
-	rootCmd.AddCommand(startSessionCmd)
-	rootCmd.AddCommand(stopSessionCmd)
-	rootCmd.AddCommand(syncSessionsCmd)
-	rootCmd.AddCommand(getPropertiesCmd)
-	rootCmd.AddCommand(setPropertyCmd)
+	rootCmd.AddCommand(sessionCmd)
+	sessionCmd.AddCommand(startSessionCmd)
+	startSessionCmd.Flags().Bool("auto-sync", false, "Automatically sync session after it's stopped")
+	startSessionCmd.Flags().Bool("screenshots", false, "Take screenshots during session")
+	sessionCmd.AddCommand(stopSessionCmd)
+	stopSessionCmd.Flags().Bool("all", false, "Stop all sessions")
+	sessionCmd.AddCommand(syncSessionsCmd)
+	sessionCmd.AddCommand(listSessionsCmd)
+
+	rootCmd.AddCommand(deviceCmd)
+	deviceCmd.AddCommand(listDevicesCmd)
+	deviceCmd.AddCommand(listDeviceAppsCmd)
+	deviceCmd.AddCommand(getDeviceCmd)
+
+	rootCmd.AddCommand(propertyCmd)
+	propertyCmd.AddCommand(getPropertiesCmd)
+	propertyCmd.AddCommand(setPropertyCmd)
 
 	rootCmd.PersistentFlags().StringVarP(&server, "server", "s", "", "")
-	rootCmd.PersistentFlags().StringVarP(&username, "username", "u", "", "")
-	rootCmd.PersistentFlags().StringVarP(&password, "password", "p", "", "")
 
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
