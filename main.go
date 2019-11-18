@@ -18,16 +18,16 @@ var rootCmd = &cobra.Command{
 	Use:   "gba-cli",
 	Short: "gba-cli",
 	Long:  "gba-cli",
-	PersistentPreRun: func(cmd *cobra.Command, args[]string) {
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		config := &gba.Config{BaseUrl: server}
 		client = gba.New(config)
 	},
 }
 
 var listDevicesCmd = &cobra.Command{
-	Use: "list",
+	Use:   "list",
 	Short: "List devices",
-	Long: "List devices",
+	Long:  "List devices",
 	Run: func(cmd *cobra.Command, args []string) {
 		devices, err := client.ListDevices()
 		if err != nil {
@@ -41,10 +41,10 @@ var listDevicesCmd = &cobra.Command{
 }
 
 var listDeviceAppsCmd = &cobra.Command{
-	Use: "list-apps [DEVICE ID]",
+	Use:   "list-apps [DEVICE ID]",
 	Short: "List apps",
-	Long: "List apps",
-	Args: cobra.MinimumNArgs(1),
+	Long:  "List apps",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		apps, err := client.GetDeviceApps(args[0])
 		if err != nil {
@@ -58,10 +58,10 @@ var listDeviceAppsCmd = &cobra.Command{
 }
 
 var getDeviceCmd = &cobra.Command{
-	Use: "describe [DEVICE ID]",
+	Use:   "describe [DEVICE ID]",
 	Short: "Describe device",
-	Long: "Describe device",
-	Args: cobra.MinimumNArgs(1),
+	Long:  "Describe device",
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		device, err := client.GetDevice(args[0])
 		if err != nil {
@@ -73,10 +73,10 @@ var getDeviceCmd = &cobra.Command{
 }
 
 var startSessionCmd = &cobra.Command{
-	Use: "start [DEVICE ID] [APP ID]",
+	Use:   "start [DEVICE ID] [APP ID]",
 	Short: "Start recording a session",
-	Long: "Start recording a session",
-	Args: cobra.ExactArgs(2),
+	Long:  "Start recording a session",
+	Args:  cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		screenshots, _ := cmd.Flags().GetBool("screenshots")
 		autoSync, _ := cmd.Flags().GetBool("auto-sync")
@@ -91,10 +91,10 @@ var startSessionCmd = &cobra.Command{
 }
 
 var stopSessionCmd = &cobra.Command{
-	Use: "stop [SESSION ID]",
+	Use:   "stop [SESSION ID]",
 	Short: "Stop a session",
-	Long: "stop",
-	Args: cobra.OnlyValidArgs,
+	Long:  "stop",
+	Args:  cobra.OnlyValidArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		all, err := cmd.Flags().GetBool("all")
 		if all {
@@ -127,9 +127,9 @@ var stopSessionCmd = &cobra.Command{
 }
 
 var syncSessionsCmd = &cobra.Command{
-	Use: "sync",
+	Use:   "sync",
 	Short: "Sync all sessions",
-	Long: "Sync all sessions",
+	Long:  "Sync all sessions",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := client.Sync()
 		if err != nil {
@@ -139,9 +139,9 @@ var syncSessionsCmd = &cobra.Command{
 }
 
 var listSessionsCmd = &cobra.Command{
-	Use: "list",
+	Use:   "list",
 	Short: "List sessions",
-	Long: "List sessions",
+	Long:  "List sessions",
 	Run: func(cmd *cobra.Command, args []string) {
 		sessions, err := client.ListSessions()
 		if err != nil {
@@ -155,9 +155,9 @@ var listSessionsCmd = &cobra.Command{
 }
 
 var getPropertiesCmd = &cobra.Command{
-	Use: "list",
+	Use:   "list",
 	Short: "List config properties",
-	Long: "List config properties",
+	Long:  "List config properties",
 	Run: func(cmd *cobra.Command, args []string) {
 		properties, err := client.GetProperties()
 		if err != nil {
@@ -172,9 +172,9 @@ var getPropertiesCmd = &cobra.Command{
 }
 
 var setPropertyCmd = &cobra.Command{
-	Use: "set",
+	Use:   "set",
 	Short: "Set a config property",
-	Long: "Set a config property",
+	Long:  "Set a config property",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := client.SetProperty(args[0], args[1])
 		if err != nil {
@@ -184,21 +184,21 @@ var setPropertyCmd = &cobra.Command{
 }
 
 var sessionCmd = &cobra.Command{
-	Use: "session",
+	Use:   "session",
 	Short: "session",
-	Long: "session",
+	Long:  "session",
 }
 
 var deviceCmd = &cobra.Command{
-	Use: "device",
+	Use:   "device",
 	Short: "device",
-	Long: "device",
+	Long:  "device",
 }
 
 var propertyCmd = &cobra.Command{
-	Use: "property",
+	Use:   "property",
 	Short: "property",
-	Long: "property",
+	Long:  "property",
 }
 
 func main() {
