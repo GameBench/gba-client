@@ -1,9 +1,12 @@
 package main
 
 import (
+	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/GameBench/gba-client-go"
 	"github.com/spf13/cobra"
@@ -164,19 +167,47 @@ var getPropertiesCmd = &cobra.Command{
 			panic(err)
 		}
 
-		for key, value := range properties {
-			fmt.Println(key, value)
+		encodedProperties, err := json.MarshalIndent(properties, "", "  ")
+		if err != nil {
+			panic(err)
 		}
 
+		fmt.Println(string(encodedProperties))
 	},
 }
 
 var setPropertyCmd = &cobra.Command{
 	Use:   "set",
-	Short: "Set a config property",
-	Long:  "Set a config property",
+	Short: "Set config properties",
+	Long:  `Set config properties
+
+Retrieve properties
+
+    gba-client property list > properties
+
+Set properties
+
+    cat properties | gba-client property set`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := client.SetProperty(args[0], args[1])
+		scanner := bufio.NewScanner(os.Stdin)
+
+		var input strings.Builder
+
+		for scanner.Scan() {
+			input.WriteString(scanner.Text())
+		}
+
+		if scanner.Err() != nil {
+			panic(scanner.Err())
+		}
+
+		var properties map[string]interface{}
+		err := json.Unmarshal([]byte(input.String()), &properties)
+		if err != nil {
+			panic(err)
+		}
+
+		err = client.SetProperties(properties)
 		if err != nil {
 			panic(err)
 		}
