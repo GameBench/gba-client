@@ -106,8 +106,10 @@ var stopSessionCmd = &cobra.Command{
 				panic(err)
 			}
 
+			options := &gba.StopSessionOptions{}
+
 			for _, session := range sessions {
-				err = client.StopSession(session.Id)
+				_, err = client.StopSession(session.Id, options)
 				if err != nil {
 					panic(err)
 				}
@@ -120,9 +122,24 @@ var stopSessionCmd = &cobra.Command{
 			return errors.New("requires a SESSION ID argument")
 		}
 
-		err = client.StopSession(args[0])
+		outputJson, err := cmd.Flags().GetBool("output-json")
 		if err != nil {
 			panic(err)
+		}
+
+		options := &gba.StopSessionOptions{}
+
+		if outputJson {
+			options.IncludeSessionJsonInResponse = true
+		}
+
+		response, err := client.StopSession(args[0], options)
+		if err != nil {
+			panic(err)
+		}
+
+		if outputJson && response != nil {
+			fmt.Println(*response)
 		}
 
 		return nil
@@ -239,6 +256,7 @@ func main() {
 	startSessionCmd.Flags().Bool("screenshots", false, "Take screenshots during session")
 	sessionCmd.AddCommand(stopSessionCmd)
 	stopSessionCmd.Flags().Bool("all", false, "Stop all sessions")
+	stopSessionCmd.Flags().Bool("output-json", false, "Output json")
 	sessionCmd.AddCommand(syncSessionsCmd)
 	sessionCmd.AddCommand(listSessionsCmd)
 
