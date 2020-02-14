@@ -8,4 +8,4 @@ upload:
 	gsutil cp gba-client-linux-amd64 gs://release-application-artifacts/gba-client/
 	gsutil cp gba-client-windows-amd64 gs://release-application-artifacts/gba-client/
 
-.PHONY: build
+.PHONY: build upload
