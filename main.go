@@ -15,6 +15,7 @@ import (
 var (
 	server string
 	client *gba.GbaClient
+	commitHash string
 )
 
 var rootCmd = &cobra.Command{
@@ -249,6 +250,26 @@ var propertyCmd = &cobra.Command{
 	Long:  "property",
 }
 
+type ClientVersionInfo struct {
+	CommitHash string
+}
+
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "version",
+	Run: func(cmd *cobra.Command, args []string) {
+		clientVersionInfo := &ClientVersionInfo{CommitHash: commitHash}
+		fmt.Printf("Client: %+v\n", clientVersionInfo)
+
+		serverVersionInfo, err := client.GetServerVersionInfo()
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Printf("Server: %+v\n", serverVersionInfo)
+	},
+}
+
 func main() {
 	rootCmd.AddCommand(sessionCmd)
 	sessionCmd.AddCommand(startSessionCmd)
@@ -268,6 +289,8 @@ func main() {
 	rootCmd.AddCommand(propertyCmd)
 	propertyCmd.AddCommand(getPropertiesCmd)
 	propertyCmd.AddCommand(setPropertyCmd)
+
+	rootCmd.AddCommand(versionCmd)
 
 	rootCmd.PersistentFlags().StringVarP(&server, "server", "s", "", "")
 
