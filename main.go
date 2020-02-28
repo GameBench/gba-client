@@ -76,6 +76,29 @@ var getDeviceCmd = &cobra.Command{
 	},
 }
 
+var shellCmd = &cobra.Command{
+	Use: "shell [DEVICE ID] -- [COMMAND]",
+	Short: "Execute shell command on Android device",
+	Long:  `Execute shell command on Android device
+
+List packages
+
+    gba-client device shell HT83G1C00069 -- pm list packages
+
+Launch clock app
+
+    gba-client device shell HT83G1C00069 -- cmd activity start-activity -n com.google.android.deskclock/com.android.deskclock.DeskClock`,
+    Args: cobra.MinimumNArgs(1),
+    Run: func(cmd *cobra.Command, args []string) {
+		output, err := client.ExecuteShellCommandOnDevice(args[0], strings.Join(args[1:], " "))
+		if err != nil {
+			panic(err)
+		}
+
+		fmt.Println(*output)
+	},
+}
+
 var startSessionCmd = &cobra.Command{
 	Use:   "start [DEVICE ID] [APP ID]",
 	Short: "Start recording a session",
@@ -285,6 +308,7 @@ func main() {
 	deviceCmd.AddCommand(listDevicesCmd)
 	deviceCmd.AddCommand(listDeviceAppsCmd)
 	deviceCmd.AddCommand(getDeviceCmd)
+	deviceCmd.AddCommand(shellCmd)
 
 	rootCmd.AddCommand(propertyCmd)
 	propertyCmd.AddCommand(getPropertiesCmd)
