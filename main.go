@@ -16,6 +16,7 @@ var (
 	server string
 	client *gba.GbaClient
 	commitHash string
+	version string
 )
 
 var rootCmd = &cobra.Command{
@@ -275,13 +276,14 @@ var propertyCmd = &cobra.Command{
 
 type ClientVersionInfo struct {
 	CommitHash string
+	Version string
 }
 
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "version",
 	Run: func(cmd *cobra.Command, args []string) {
-		clientVersionInfo := &ClientVersionInfo{CommitHash: commitHash}
+		clientVersionInfo := &ClientVersionInfo{CommitHash: commitHash, Version:version}
 		fmt.Printf("Client: %+v\n", clientVersionInfo)
 
 		serverVersionInfo, err := client.GetServerVersionInfo()
