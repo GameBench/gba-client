@@ -158,6 +158,15 @@ var stopSessionCmd = &cobra.Command{
 			options.IncludeSessionJsonInResponse = true
 		}
 
+		outputDir, err := cmd.Flags().GetString("output-dir")
+		if err != nil {
+			panic(err)
+		}
+
+		if outputDir != "" {
+			options.OutputDir = outputDir
+		}
+
 		response, err := client.StopSession(args[0], options)
 		if err != nil {
 			panic(err)
@@ -302,7 +311,8 @@ func main() {
 	startSessionCmd.Flags().Bool("screenshots", false, "Take screenshots during session")
 	sessionCmd.AddCommand(stopSessionCmd)
 	stopSessionCmd.Flags().Bool("all", false, "Stop all sessions")
-	stopSessionCmd.Flags().Bool("output-json", false, "Output json")
+	stopSessionCmd.Flags().Bool("output-json", false, "Output JSON")
+	stopSessionCmd.Flags().String("output-dir", "", "Write JSON file to this directory")
 	sessionCmd.AddCommand(syncSessionsCmd)
 	sessionCmd.AddCommand(listSessionsCmd)
 

@@ -13,6 +13,8 @@ github.com/GameBench/gba-client-go v0.0.0-20200214171809-ddcd0eb4a620 h1:0UrSHzF
 github.com/GameBench/gba-client-go v0.0.0-20200214171809-ddcd0eb4a620/go.mod h1:0FpGH5SVOc+EhazDDtQwU3zh4zGBYC/Kus+YMuUnMTA=
 github.com/GameBench/gba-client-go v0.0.0-20200228105124-238c351b389c h1:BBIwNV/r73mwb3k8QUrRPJ4kGPES0EZW0H3oCoUXrxw=
 github.com/GameBench/gba-client-go v0.0.0-20200228105124-238c351b389c/go.mod h1:0FpGH5SVOc+EhazDDtQwU3zh4zGBYC/Kus+YMuUnMTA=
+github.com/GameBench/gba-client-go v0.0.0-20200522171718-23d5fc311740 h1:sM1dkQ3haVMf1Ryrro70OjWPmUzPrI4BqrPxO8TWgdM=
+github.com/GameBench/gba-client-go v0.0.0-20200522171718-23d5fc311740/go.mod h1:0FpGH5SVOc+EhazDDtQwU3zh4zGBYC/Kus+YMuUnMTA=
 github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
 github.com/coreos/go-etcd v2.0.0+incompatible/go.mod h1:Jez6KQU2B/sWsbdaef3ED8NzMklzPG4d5KIOhIy30Tk=
