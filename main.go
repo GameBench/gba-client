@@ -108,7 +108,8 @@ var startSessionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		screenshots, _ := cmd.Flags().GetBool("screenshots")
 		autoSync, _ := cmd.Flags().GetBool("auto-sync")
-		options := &gba.StartSessionOptions{Screenshots: screenshots, AutoSync: autoSync}
+		tags, _ := cmd.Flags().GetStringToString("tags")
+		options := &gba.StartSessionOptions{Screenshots: screenshots, AutoSync: autoSync, Tags: tags}
 		session, err := client.StartSession(args[0], args[1], options)
 		if err != nil {
 			panic(err)
@@ -309,6 +310,7 @@ func main() {
 	sessionCmd.AddCommand(startSessionCmd)
 	startSessionCmd.Flags().Bool("auto-sync", false, "Automatically sync session after it's stopped")
 	startSessionCmd.Flags().Bool("screenshots", false, "Take screenshots during session")
+	startSessionCmd.Flags().StringToString("tags", make(map[string]string), "")
 	sessionCmd.AddCommand(stopSessionCmd)
 	stopSessionCmd.Flags().Bool("all", false, "Stop all sessions")
 	stopSessionCmd.Flags().Bool("output-json", false, "Output JSON")
