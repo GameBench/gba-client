@@ -1,5 +1,5 @@
 GIT_HASH := $(shell git rev-parse HEAD)
-VERSION := 0.2.0
+VERSION := 0.3.0
 
 build:
 	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "-X main.commitHash=$(GIT_HASH) -X main.version=$(VERSION) -s" -trimpath -o gba-client-darwin-amd64
